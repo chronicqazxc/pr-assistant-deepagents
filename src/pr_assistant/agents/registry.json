@@ -1,0 +1,11 @@
+{
+  "agents": [
+    {
+      "url_patterns": [
+        "WeatherForcast"
+      ],
+      "reviewer_class": "pr_assistant.agents.weather_forcast.reviewer_agent.WeatherForcastCodeReviewAgent",
+      "replier_class": "pr_assistant.agents.weather_forcast.comment_replier_agent.WeatherForcastCommentReplyAgent"
+    }
+  ]
+}
