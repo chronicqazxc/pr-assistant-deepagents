@@ -34,14 +34,13 @@ jobs:
         run: |
           # Create .env file from secrets/variables
           cat > .env << EOF
-          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           LLM_PROVIDER=${{ vars.LLM_PROVIDER }}
-          OLLAMA_BASE_URL=${{ vars.OLLAMA_BASE_URL || 'http://localhost:11434' }}
-          OLLAMA_MODEL=${{ vars.OLLAMA_MODEL || 'gpt-oss:20b' }}
-          ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY || '' }}
-          ANTHROPIC_MODEL=${{ vars.ANTHROPIC_MODEL || 'claude-sonnet-4-6' }}
-          GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY || '' }}
-          GEMINI_MODEL=${{ vars.GEMINI_MODEL || 'gemini-2.0-flash' }}
+          OLLAMA_BASE_URL=${{ vars.OLLAMA_BASE_URL }}
+          OLLAMA_MODEL=${{ vars.OLLAMA_MODEL }}
+          ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_MODEL=${{ vars.ANTHROPIC_MODEL }}
+          GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}
+          GEMINI_MODEL=${{ vars.GEMINI_MODEL }}
           TRIGGER_KEYWORD=${{ vars.TRIGGER_KEYWORD }}
           EOF
           bash pr-assistant/scripts/github/01-setup-environment.sh

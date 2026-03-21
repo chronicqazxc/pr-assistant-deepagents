@@ -53,25 +53,35 @@ curl -o .github/workflows/pr-assistant.yml \
 Add secrets/variables to your repository (Settings → Secrets and variables → Actions):
 
 **Secrets:**
-- `GITHUB_TOKEN` - Auto-provided by GitHub Actions (no need to add)
+- `ANTHROPIC_API_KEY` - Anthropic API key (if using `anthropic`)
+- `GOOGLE_API_KEY` - Google API key (if using `gemini`)
+
+Note: `GITHUB_TOKEN` is auto-provided by GitHub Actions.
 
 **Variables:**
 - `PR_ASSISTANT_REPO` - This repository URL (e.g., `your-username/pr-assistant-deepagents`)
-- `LLM_PROVIDER` - `ollama` (local), `anthropic`, or `gemini`
+- `LLM_PROVIDER` - `ollama`, `anthropic`, or `gemini`
 - `TRIGGER_KEYWORD` - Bot mention keyword to trigger (e.g., `DangerCI001`)
 
-**For cloud LLM providers, also add secrets:**
-- `OLLAMA_BASE_URL` - Ollama server URL (if using local ollama)
-- `OLLAMA_MODEL` - Ollama model name
-- `ANTHROPIC_API_KEY` - Anthropic API key (if using `anthropic`)
-- `ANTHROPIC_MODEL` - Anthropic model name
-- `GOOGLE_API_KEY` - Google API key (if using `gemini`)
-- `GEMINI_MODEL` - Gemini model name
+**LLM Provider Settings (Variables):**
+
+| Provider | Variables |
+|----------|-----------|
+| Ollama | `OLLAMA_BASE_URL`, `OLLAMA_MODEL` |
+| Anthropic | `ANTHROPIC_MODEL` |
+| Gemini | `GEMINI_MODEL` |
+
+Only add variables for the provider you're using.
 
 ### 4. Use It
 
-- **Open a PR**: Automatically triggers review
-- **Comment `/review`**: Triggers review on demand
+Comment on a PR mentioning the bot to trigger:
+
+```
+@DangerCI001 please review
+```
+
+- **Mention bot**: Triggers review
 - **Ask questions**: Routes to reply agent for contextual answers
 
 ## Comment Types
@@ -180,12 +190,11 @@ You have deep knowledge of...
 
 ## Configuration
 
-Environment variables (`.env`):
+Environment variables (`.env`). In GitHub Actions, these are set via secrets/variables:
 
 ```bash
-# GitHub
-GITHUB_TOKEN=ghp_xxx
-GITHUB_BASE_URL=https://api.github.com
+# GitHub (auto-provided in GitHub Actions)
+GITHUB_TOKEN=<auto-provided>
 
 # LLM Provider
 LLM_PROVIDER=ollama  # or anthropic, gemini
@@ -195,11 +204,11 @@ OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=gpt-oss:20b
 
 # Anthropic
-ANTHROPIC_API_KEY=sk-ant-xxx
+ANTHROPIC_API_KEY=<your-api-key>
 ANTHROPIC_MODEL=claude-sonnet-4-6
 
 # Gemini
-GOOGLE_API_KEY=xxx
+GOOGLE_API_KEY=<your-api-key>
 GEMINI_MODEL=gemini-2.0-flash
 ```
 
