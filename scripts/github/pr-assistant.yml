@@ -33,6 +33,8 @@ jobs:
       # Build PR URL with comment anchor
       PR_URL: ${{ github.event.comment.html_url }}
       USER: ${{ github.actor }}
+      PR_ASSISTANT_REPO_URL: https://github.com/${{ vars.PR_ASSISTANT_REPO }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
     steps:
       - name: Clone PR Assistant

@@ -27,13 +27,14 @@ def generate_footer(footer_type: str = "--inline") -> str:
         or os.environ.get("USER_NAME")
         or "Claude Agent"
     )
-    build_url = os.environ.get("BUILD_URL", "")
+    run_url = os.environ.get("RUN_URL", "")
     version = _read_version()
 
-    repo_url = "https://github.com/your-org/pr-assistant"
-    bot_line = f"🤖 [PR Assistant (v{version})]({repo_url}) • {user}"
-    if build_url:
-        bot_line += f" • [View Log]({build_url})"
+    repo_url = os.environ.get("PR_ASSISTANT_REPO_URL", "https://github.com/your-org/pr-assistant")
+    user_link = f"[{user}](https://github.com/{user})"
+    bot_line = f"🤖 [PR Assistant (v{version})]({repo_url}) • {user_link}"
+    if run_url:
+        bot_line += f" • [Run Log]({run_url})"
 
     if footer_type == "--summary":
         return f"---\n{bot_line}"
