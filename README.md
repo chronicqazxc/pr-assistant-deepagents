@@ -50,10 +50,23 @@ curl -o .github/workflows/pr-assistant.yml \
   https://raw.githubusercontent.com/your-username/pr-assistant-deepagents/main/scripts/github/pr-assistant.yml
 ```
 
-Add secrets to your repository:
+Add secrets/variables to your repository (Settings → Secrets and variables → Actions):
 
+**Secrets:**
+- `GITHUB_TOKEN` - Auto-provided by GitHub Actions (no need to add)
+
+**Variables:**
 - `PR_ASSISTANT_REPO` - This repository URL (e.g., `your-username/pr-assistant-deepagents`)
 - `LLM_PROVIDER` - `ollama` (local), `anthropic`, or `gemini`
+- `TRIGGER_KEYWORD` - Bot mention keyword to trigger (e.g., `DangerCI001`)
+
+**For cloud LLM providers, also add secrets:**
+- `OLLAMA_BASE_URL` - Ollama server URL (if using local ollama)
+- `OLLAMA_MODEL` - Ollama model name
+- `ANTHROPIC_API_KEY` - Anthropic API key (if using `anthropic`)
+- `ANTHROPIC_MODEL` - Anthropic model name
+- `GOOGLE_API_KEY` - Google API key (if using `gemini`)
+- `GEMINI_MODEL` - Gemini model name
 
 ### 4. Use It
 

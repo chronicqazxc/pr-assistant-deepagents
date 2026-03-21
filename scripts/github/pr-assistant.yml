@@ -1,22 +1,20 @@
 name: PR Assistant
 
 on:
-  pull_request:
-    types: [opened, synchronize]
   issue_comment:
     types: [created]
 
 jobs:
   pr-assistant:
     if: >
-      github.event_name == 'issue_comment' && contains(github.event.comment.body, '<trigger_keyword>')
+      contains(github.event.comment.body, vars.TRIGGER_KEYWORD)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - name: Clone PR Assistant
         uses: actions/checkout@v4
         with:
-          repository: ${{ secrets.PR_ASSISTANT_REPO }}
+          repository: ${{ vars.PR_ASSISTANT_REPO }}
           path: pr-assistant
           ref: main
           sparse-checkout: |
@@ -33,12 +31,23 @@ jobs:
         run: pip install uv && uv sync
 
       - name: Setup environment
-        run: bash pr-assistant/scripts/github/01-setup-environment.sh
+        run: |
+          # Create .env file from secrets/variables
+          cat > .env << EOF
+          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          LLM_PROVIDER=${{ vars.LLM_PROVIDER }}
+          OLLAMA_BASE_URL=${{ vars.OLLAMA_BASE_URL || 'http://localhost:11434' }}
+          OLLAMA_MODEL=${{ vars.OLLAMA_MODEL || 'gpt-oss:20b' }}
+          ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY || '' }}
+          ANTHROPIC_MODEL=${{ vars.ANTHROPIC_MODEL || 'claude-sonnet-4-6' }}
+          GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY || '' }}
+          GEMINI_MODEL=${{ vars.GEMINI_MODEL || 'gemini-2.0-flash' }}
+          TRIGGER_KEYWORD=${{ vars.TRIGGER_KEYWORD }}
+          EOF
+          bash pr-assistant/scripts/github/01-setup-environment.sh
         env:
-          PR_URL: ${{ github.event.pull_request.html_url || github.event.issue.html_url }}
+          PR_URL: ${{ github.event.issue.html_url }}
           USER: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LLM_PROVIDER: ${{ secrets.LLM_PROVIDER }}
 
       - name: Prefetch data
         run: bash pr-assistant/scripts/github/02-prefetch-data.sh
