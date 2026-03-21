@@ -9,8 +9,7 @@ on:
 jobs:
   pr-assistant:
     if: >
-      github.event_name == 'pull_request' ||
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '/review'))
+      github.event_name == 'issue_comment' && contains(github.event.comment.body, '<trigger_keyword>')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -28,7 +27,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: pip install uv && uv sync
