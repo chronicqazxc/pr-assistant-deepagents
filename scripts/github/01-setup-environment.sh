@@ -5,7 +5,7 @@
 # Required:
 #   PR_URL          - GitHub PR URL
 #   PROJECT_ROOT    - Project root directory
-#   (from .env)     - GITHUB_TOKEN, LLM_PROVIDER
+#   (from .env)     - GH_TOKEN, LLM_PROVIDER
 #
 # Optional:
 #   USER            - Username who triggered the review
@@ -54,8 +54,8 @@ if [ -f "$PROJECT_ROOT/.env" ]; then
   source "$PROJECT_ROOT/.env"
   set +a
 
-  if [ -z "$GITHUB_TOKEN" ]; then
-    log_error "GITHUB_TOKEN not set in .env"
+  if [ -z "$GH_TOKEN" ]; then
+    log_error "GH_TOKEN not set in .env"
     exit 1
   fi
 
@@ -66,7 +66,7 @@ if [ -f "$PROJECT_ROOT/.env" ]; then
   log_success "API credentials loaded"
 else
   log_error ".env file not found at: $PROJECT_ROOT/.env"
-  echo "Create .env with GITHUB_TOKEN and LLM_PROVIDER"
+  echo "Create .env with GH_TOKEN and LLM_PROVIDER"
   exit 1
 fi
 
@@ -102,7 +102,7 @@ if [ -n "$COMMENT_ID" ]; then
   if [[ "$PR_URL" == *"#discussion"* ]]; then
     log_info "Detected discussion comment, using PR review API"
     comment_response=$(curl -s -f \
-      -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+      -H "Authorization: Bearer ${GH_TOKEN}" \
       -H "Accept: application/vnd.github+json" \
       "https://api.github.com/repos/$OWNER/$REPO/pulls/comments/$COMMENT_ID") || {
       log_warning "Failed to fetch PR review comment"
@@ -110,7 +110,7 @@ if [ -n "$COMMENT_ID" ]; then
   else
     log_info "Detected issue comment, using issue comments API"
     comment_response=$(curl -s -f \
-      -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+      -H "Authorization: Bearer ${GH_TOKEN}" \
       -H "Accept: application/vnd.github+json" \
       "https://api.github.com/repos/$OWNER/$REPO/issues/comments/$COMMENT_ID") || {
       log_warning "Failed to fetch issue comment"
@@ -150,7 +150,7 @@ fi
 
 # Write exports to file for sourcing in subsequent steps
 {
-  echo "export GITHUB_TOKEN=$GITHUB_TOKEN"
+  echo "export GH_TOKEN=$GH_TOKEN"
   echo "export LLM_PROVIDER=$LLM_PROVIDER"
   echo "export GITHUB_REPOSITORY=$GITHUB_REPOSITORY"
   echo "export OWNER=$OWNER"

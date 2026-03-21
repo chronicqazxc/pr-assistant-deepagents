@@ -35,7 +35,7 @@ class BaseReviewAgent:
     """
 
     def __init__(self, config: AgentConfig, agent_dir: Path):
-        os.environ['GITHUB_TOKEN'] = config.github_token
+        os.environ['GH_TOKEN'] = config.github_token
         os.environ['GITHUB_BASE_URL'] = config.github_base_url
 
         self.config = config

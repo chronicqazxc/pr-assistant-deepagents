@@ -56,7 +56,7 @@ Add secrets/variables to your repository (Settings → Secrets and variables →
 - `ANTHROPIC_API_KEY` - Anthropic API key (if using `anthropic`)
 - `GOOGLE_API_KEY` - Google API key (if using `gemini`)
 
-Note: `GITHUB_TOKEN` is auto-provided by GitHub Actions.
+Note: `GH_TOKEN` is auto-provided by GitHub Actions (no manual secret needed).
 
 **Variables:**
 - `PR_ASSISTANT_REPO` - This repository URL (e.g., `your-username/pr-assistant-deepagents`)
@@ -193,8 +193,8 @@ You have deep knowledge of...
 Environment variables (`.env`). In GitHub Actions, these are set via secrets/variables:
 
 ```bash
-# GitHub (auto-provided in GitHub Actions)
-GITHUB_TOKEN=<auto-provided>
+# GitHub (auto-provided in GitHub Actions as GH_TOKEN)
+GH_TOKEN=<auto-provided>
 
 # LLM Provider
 LLM_PROVIDER=ollama  # or anthropic, gemini

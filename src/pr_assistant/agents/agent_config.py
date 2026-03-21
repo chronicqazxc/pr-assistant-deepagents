@@ -24,7 +24,7 @@ class AgentConfig(BaseModel):
     gemini_model: str = Field(default_factory=lambda: os.getenv("GEMINI_MODEL", "gemini-2.0-flash"))
 
     # GitHub Integration
-    github_token: str = Field(default_factory=lambda: os.getenv("GITHUB_TOKEN", ""))
+    github_token: str = Field(default_factory=lambda: os.getenv("GH_TOKEN", ""))
     github_base_url: str = Field(default_factory=lambda: os.getenv("GITHUB_BASE_URL", "https://api.github.com"))
 
     def validate_required_fields(self) -> None:
@@ -39,7 +39,7 @@ class AgentConfig(BaseModel):
                 raise ValueError("GOOGLE_API_KEY is required when LLM_PROVIDER=gemini")
 
         if not self.github_token:
-            raise ValueError("GITHUB_TOKEN is required")
+            raise ValueError("GH_TOKEN is required")
 
 
 def load_config() -> AgentConfig:

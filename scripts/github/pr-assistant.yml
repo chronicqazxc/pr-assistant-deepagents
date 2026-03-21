@@ -3,13 +3,37 @@ name: PR Assistant
 on:
   issue_comment:
     types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
 
 jobs:
   pr-assistant:
+    # Trigger if keyword is in a PR conversation comment OR an inline diff comment
     if: >
-      contains(github.event.comment.body, vars.TRIGGER_KEYWORD)
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, vars.TRIGGER_KEYWORD)) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, vars.TRIGGER_KEYWORD))
     runs-on: ubuntu-latest
     timeout-minutes: 30
+
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
+      OLLAMA_BASE_URL: ${{ vars.OLLAMA_BASE_URL }}
+      OLLAMA_MODEL: ${{ vars.OLLAMA_MODEL }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+      TRIGGER_KEYWORD: ${{ vars.TRIGGER_KEYWORD }}
+      # Use the correct URL depending on which event triggered it
+      PR_URL: ${{ github.event.issue.html_url || github.event.pull_request.html_url }}
+      GITHUB_USER: ${{ github.actor }}
+
     steps:
       - name: Clone PR Assistant
         uses: actions/checkout@v4
@@ -20,6 +44,7 @@ jobs:
           sparse-checkout: |
             scripts
             src/pr_assistant/agents
+            pyproject.toml
           sparse-checkout-cone-mode: false
 
       - name: Setup Python
@@ -28,28 +53,33 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install uv && uv sync
+        run: |
+          cd pr-assistant
+          pip install uv
+          uv sync
 
       - name: Setup environment
         run: |
-          # Create .env file from secrets/variables
+          cd pr-assistant
           cat > .env << EOF
-          LLM_PROVIDER=${{ vars.LLM_PROVIDER }}
-          OLLAMA_BASE_URL=${{ vars.OLLAMA_BASE_URL }}
-          OLLAMA_MODEL=${{ vars.OLLAMA_MODEL }}
-          ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
-          ANTHROPIC_MODEL=${{ vars.ANTHROPIC_MODEL }}
-          GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}
-          GEMINI_MODEL=${{ vars.GEMINI_MODEL }}
-          TRIGGER_KEYWORD=${{ vars.TRIGGER_KEYWORD }}
+          GH_TOKEN=$GH_TOKEN
+          LLM_PROVIDER=$LLM_PROVIDER
+          OLLAMA_BASE_URL=$OLLAMA_BASE_URL
+          OLLAMA_MODEL=$OLLAMA_MODEL
+          ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY
+          ANTHROPIC_MODEL=$ANTHROPIC_MODEL
+          GOOGLE_API_KEY=$GOOGLE_API_KEY
+          GEMINI_MODEL=$GEMINI_MODEL
+          TRIGGER_KEYWORD=$TRIGGER_KEYWORD
           EOF
-          bash pr-assistant/scripts/github/01-setup-environment.sh
-        env:
-          PR_URL: ${{ github.event.issue.html_url }}
-          USER: ${{ github.actor }}
+          bash scripts/github/01-setup-environment.sh
 
       - name: Prefetch data
-        run: bash pr-assistant/scripts/github/02-prefetch-data.sh
+        run: |
+          cd pr-assistant
+          bash scripts/github/02-prefetch-data.sh
 
       - name: Run review
-        run: bash pr-assistant/scripts/github/03-run-review.sh
+        run: |
+          cd pr-assistant
+          bash scripts/github/03-run-review.sh

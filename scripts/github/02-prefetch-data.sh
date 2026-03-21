@@ -2,7 +2,7 @@
 # Prefetch PR data: metadata, diff, comments, clone repo
 #
 # Required env vars:
-#   GITHUB_TOKEN    - GitHub API token
+#   GH_TOKEN    - GitHub API token
 #   OWNER           - Repository owner
 #   REPO            - Repository name
 #   PR_NUMBER       - PR number
@@ -61,7 +61,7 @@ if [ -n "$TRIGGER_COMMENT_FILE" ] && [ -f "$TRIGGER_COMMENT_FILE" ]; then
 fi
 
 log_info "Fetching PR metadata..."
-curl -s -f -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+curl -s -f -H "Authorization: Bearer ${GH_TOKEN}" \
      -H "Accept: application/vnd.github+json" \
      "https://api.github.com/repos/$OWNER/$REPO/pulls/$PR_NUMBER" \
      > "$PROJECT_ROOT/pre-fetched-data/pr_metadata.json" || {
@@ -76,7 +76,7 @@ fi
 export PR_METADATA_FILE="$PROJECT_ROOT/pre-fetched-data/pr_metadata.json"
 
 log_info "Fetching PR diff..."
-curl -s -f -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+curl -s -f -H "Authorization: Bearer ${GH_TOKEN}" \
      -H "Accept: application/vnd.github.diff" \
      "https://api.github.com/repos/$OWNER/$REPO/pulls/$PR_NUMBER" \
      > "$PROJECT_ROOT/pre-fetched-data/pr_diff.txt" || {
@@ -93,7 +93,7 @@ export PR_DIFF_FILE="$PROJECT_ROOT/pre-fetched-data/pr_diff.txt"
 log_info "Fetching PR comments..."
 
 issue_comments_file="$PROJECT_ROOT/pre-fetched-data/issue_comments.json"
-curl -s -f -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+curl -s -f -H "Authorization: Bearer ${GH_TOKEN}" \
      -H "Accept: application/vnd.github+json" \
      "https://api.github.com/repos/$OWNER/$REPO/issues/$PR_NUMBER/comments" \
      > "$issue_comments_file" || {
@@ -102,7 +102,7 @@ curl -s -f -H "Authorization: Bearer ${GITHUB_TOKEN}" \
 }
 
 review_comments_file="$PROJECT_ROOT/pre-fetched-data/review_comments.json"
-curl -s -f -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+curl -s -f -H "Authorization: Bearer ${GH_TOKEN}" \
      -H "Accept: application/vnd.github+json" \
      "https://api.github.com/repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" \
      > "$review_comments_file" || {

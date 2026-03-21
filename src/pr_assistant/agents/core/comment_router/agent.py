@@ -41,7 +41,7 @@ class CommentRouter:
         self.github_token = config.github_token
         self.github_base_url = config.github_base_url
 
-        os.environ['GITHUB_TOKEN'] = config.github_token
+        os.environ['GH_TOKEN'] = config.github_token
         os.environ['GITHUB_BASE_URL'] = config.github_base_url
 
         self.project_root = Path.cwd()
