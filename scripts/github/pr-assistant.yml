@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 30
 
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
       OLLAMA_BASE_URL: ${{ vars.OLLAMA_BASE_URL }}
       OLLAMA_MODEL: ${{ vars.OLLAMA_MODEL }}
@@ -30,9 +30,9 @@ jobs:
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
       GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
       TRIGGER_KEYWORD: ${{ vars.TRIGGER_KEYWORD }}
-      # Use the correct URL depending on which event triggered it
-      PR_URL: ${{ github.event.issue.html_url || github.event.pull_request.html_url }}
-      GITHUB_USER: ${{ github.actor }}
+      # Build PR URL with comment anchor
+      PR_URL: ${{ github.event.comment.html_url }}
+      USER: ${{ github.actor }}
 
     steps:
       - name: Clone PR Assistant
