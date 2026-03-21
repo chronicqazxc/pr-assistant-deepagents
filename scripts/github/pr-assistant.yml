@@ -43,7 +43,7 @@ jobs:
           ref: main
           sparse-checkout: |
             scripts
-            src/pr_assistant/agents
+            src/pr_assistant
             pyproject.toml
           sparse-checkout-cone-mode: false
 
