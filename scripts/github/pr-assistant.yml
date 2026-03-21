@@ -19,6 +19,7 @@ jobs:
         with:
           repository: ${{ secrets.PR_ASSISTANT_REPO }}
           path: pr-assistant
+          ref: main
           sparse-checkout: |
             scripts
             src/pr_assistant/agents
