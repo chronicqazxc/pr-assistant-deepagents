@@ -114,8 +114,8 @@ class BaseReviewAgent:
             # ── Step 1: Add reviewer ─────────────────────────────────────────────────────────────
             bot_username = GitHubWriteClient.get_username_from_token(self.config.github_token)
 
-            print(f"  DEBUG: Token prefix = {self.config.github_token[:10]}...")
-            print(f"  DEBUG: Username = {bot_username}")
+            if not bot_username:
+                bot_username = "github-actions[bot]"
 
             if pr_metadata_file and os.path.exists(pr_metadata_file):
                 print("🔧 Step 1: Adding reviewer...")

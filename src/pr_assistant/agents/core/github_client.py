@@ -34,12 +34,9 @@ class GitHubWriteClient:
             response = requests.get(f"{base_url.rstrip('/')}/user", headers=headers, timeout=30)
             if response.status_code == 200:
                 data = response.json()
-                username = data.get("login", "") or data.get("name", "")
-                print(f"  DEBUG: Token prefix={token[:10]}..., API response: {data}")
-                return username
-            print(f"  WARNING: Failed to get username from token: {response.status_code} - {response.text[:200]}")
-        except Exception as e:
-            print(f"  WARNING: Exception getting username from token: {e}")
+                return data.get("login", "") or data.get("name", "")
+        except Exception:
+            pass
         return ""
 
     def _parse_pr_url(self, pr_url: str):
@@ -100,10 +97,11 @@ class GitHubWriteClient:
         Returns:
             Dict with keys: status_code, skipped (bool), message
         """
-        owner, repo, pr_number = self._parse_pr_url(pr_url)
-
         if not username:
-            username = os.environ.get("PR_REVIEWER_BOT", "DangerCI001")
+            print("  WARNING: No username provided, skipping add reviewer")
+            return {"status_code": 0, "skipped": True, "message": "No username provided"}
+
+        owner, repo, pr_number = self._parse_pr_url(pr_url)
 
         url = f"{self.base_url}/repos/{owner}/{repo}/pulls/{pr_number}/requested_reviewers"
         
