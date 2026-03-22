@@ -111,17 +111,18 @@ class BaseReviewAgent:
                     print(f"  {'⚠️ ' if 'TRIGGER' in env_var else '❌'} {env_var}=<not set>")
             print()
 
-            # ── Step 1: Add reviewer (optional) ─────────────────────────────────────────────
-            skip_reviewer = os.environ.get("SKIP_REVIEWER", "false").lower() == "true"
-            if not skip_reviewer and pr_metadata_file and os.path.exists(pr_metadata_file):
+            # ── Step 1: Add reviewer ─────────────────────────────────────────────────────────────
+            bot_username = GitHubWriteClient.get_username_from_token(self.config.github_token)
+            if pr_metadata_file and os.path.exists(pr_metadata_file):
                 print("🔧 Step 1: Adding reviewer...")
                 result = self.client.add_reviewer(
                     pr_url=base_pr_url,
                     metadata_file=pr_metadata_file,
+                    username=bot_username,
                 )
                 print(f"  add_reviewer result: {result}")
             else:
-                print("🔧 Step 1: Skipping reviewer (set SKIP_REVIEWER=false to enable)")
+                print("🔧 Step 1: Skipping reviewer (no PR metadata file)")
 
             # Use pre-fetched-data as agent working directory and result file
             agent_work_dir = str(self.project_root / "pre-fetched-data")

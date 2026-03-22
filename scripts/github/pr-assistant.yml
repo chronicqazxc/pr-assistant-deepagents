@@ -33,7 +33,6 @@ jobs:
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
       GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
       TRIGGER_KEYWORD: ${{ vars.TRIGGER_KEYWORD }}
-      SKIP_REVIEWER: "false" # true if no bot account
       PR_URL: ${{ github.event.comment.html_url }}
       USER: ${{ github.actor }}
       PR_ASSISTANT_REPO_URL: https://github.com/${{ vars.PR_ASSISTANT_REPO }}
@@ -76,7 +75,6 @@ jobs:
           GOOGLE_API_KEY=$GOOGLE_API_KEY
           GEMINI_MODEL=$GEMINI_MODEL
           TRIGGER_KEYWORD=$TRIGGER_KEYWORD
-          SKIP_REVIEWER=$SKIP_REVIEWER
           PR_ASSISTANT_REPO_URL=$PR_ASSISTANT_REPO_URL
           RUN_URL=$RUN_URL
           EOF

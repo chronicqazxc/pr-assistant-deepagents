@@ -14,6 +14,27 @@ class GitHubWriteClient:
         self.github_token = github_token
         self.base_url = base_url.rstrip("/")
 
+    @staticmethod
+    def get_username_from_token(token: str, base_url: str = "https://api.github.com") -> str:
+        """Get GitHub username from token.
+
+        Args:
+            token: GitHub token (PAT or GITHUB_TOKEN)
+            base_url: GitHub API base URL
+
+        Returns:
+            Username (login) of the authenticated user
+        """
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+        }
+        response = requests.get(f"{base_url.rstrip('/')}/user", headers=headers, timeout=30)
+        if response.status_code == 200:
+            return response.json().get("login", "")
+        return ""
+
     def _parse_pr_url(self, pr_url: str):
         """Parse owner, repo, and PR number from a GitHub PR URL.
 
