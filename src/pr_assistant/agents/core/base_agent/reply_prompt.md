@@ -50,7 +50,7 @@ Use the Write tool to write to {result_file}:
 
 ```json
 {{
-  "reply": "<natural greeting> [@\"<user_name>\"](https://github.com/<user_name>) <replay content>"
+  "reply": "<natural greeting> [\"<user_name>\"](https://github.com/<user_name>) <replay content>"
 }}
 ```
 
