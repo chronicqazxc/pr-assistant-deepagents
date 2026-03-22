@@ -114,10 +114,7 @@ class BaseReviewAgent:
             # ── Step 1: Add reviewer ─────────────────────────────────────────────────────────────
             bot_username = GitHubWriteClient.get_username_from_token(self.config.github_token)
 
-            if not bot_username:
-                bot_username = "github-actions[bot]"
-
-            if pr_metadata_file and os.path.exists(pr_metadata_file):
+            if pr_metadata_file and os.path.exists(pr_metadata_file) and bot_username:
                 print("🔧 Step 1: Adding reviewer...")
                 result = self.client.add_reviewer(
                     pr_url=base_pr_url,
@@ -126,7 +123,7 @@ class BaseReviewAgent:
                 )
                 print(f"  add_reviewer result: {result}")
             else:
-                print("🔧 Step 1: Skipping reviewer (no PR metadata file)")
+                print("🔧 Step 1: Skipping reviewer")
 
             # Use pre-fetched-data as agent working directory and result file
             agent_work_dir = str(self.project_root / "pre-fetched-data")

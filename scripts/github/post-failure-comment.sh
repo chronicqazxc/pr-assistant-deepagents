@@ -30,14 +30,8 @@ fi
 
 # Clean PR URL (remove anchor)
 clean_pr_url="${PR_URL%%#*}"
-user="${USER:-github-actions}"
-repo_url="${PR_ASSISTANT_REPO_URL:-https://github.com/your-org/pr-assistant}"
 
-failure_comment="❌ PR Review failed!
-
-[@${user}](https://github.com/${user})
-
-[PR Assistant](${repo_url}) • [Run Log](${RUN_URL})"
+failure_comment="❌ PR Review failed!"
 
 # Post comment using Python
 cd "$PROJECT_ROOT" || exit 1
@@ -46,6 +40,22 @@ uv run python3 -c "
 import os
 import sys
 sys.path.insert(0, 'src')
+
+from pr_assistant.agents.core.footer import generate_footer
+
+# Build failure comment with footer
+text = '''${failure_comment}
+
+'''
+
+# Get user for footer
+user = os.environ.get('USER', 'GitHub Actions')
+os.environ['USER_NAME'] = user
+
+# Generate footer (--summary style for failure)
+footer = generate_footer('--summary')
+
+comment = text + footer
 
 from pr_assistant.agents.core.github_client import GitHubWriteClient
 
@@ -56,7 +66,7 @@ if not token:
 
 client = GitHubWriteClient(github_token=token)
 try:
-    result = client.post_comment(pr_url='${clean_pr_url}', text='''${failure_comment}''')
+    result = client.post_comment(pr_url='${clean_pr_url}', text=comment)
     print(f'Failure comment posted: {result}')
 except Exception as e:
     print(f'Failed to post comment: {e}')
