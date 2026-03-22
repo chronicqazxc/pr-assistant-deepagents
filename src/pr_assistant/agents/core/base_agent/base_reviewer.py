@@ -261,7 +261,8 @@ Now proceed with the review following the steps above.
                 system_prompt=system_prompt,
             )
 
-            started_comment = f"[@\"{trigger_user}\"](https://github.com/{trigger_user}) {greeting}" if trigger_user else greeting
+            started_comment = f"[{trigger_user}](https://github.com/{trigger_user}) {greeting}" if trigger_user else greeting
+            started_comment += "\n\n" + generate_footer(footer_type="--summary")
             clean_pr_url = pr_url.split("#")[0]
             self.client.post_trigger_comment(comment_url=clean_pr_url, text=started_comment, quote_body=trigger_body)
 
