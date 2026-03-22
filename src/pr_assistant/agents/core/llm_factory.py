@@ -8,8 +8,8 @@ from typing import Any
 
 from ..agent_config import AgentConfig
 
-# Ollama context length options
-OLLAMA_CONTEXT_LENGTHS = {
+# Context length options (generic, used by all providers)
+CONTEXT_LENGTHS = {
     "4k": 4096,
     "8k": 8192,
     "16k": 16384,
@@ -19,11 +19,11 @@ OLLAMA_CONTEXT_LENGTHS = {
     "256k": 262144,
 }
 
-# Current Ollama settings - change these to test
+# Default Ollama settings
 OLLAMA_SETTINGS = {
-    "context_length": "128k",  # Options: 4k, 8k, 16k, 32k, 64k, 128k, 256k
+    "context_length": "128k",
     "temperature": 0,
-    "num_predict": -2,  # -1 = infinite, -2 = fill context
+    "num_predict": -2,
     "reasoning": False
 }
 
@@ -43,10 +43,9 @@ def create_llm(config: AgentConfig) -> Any:
     provider = config.llm_provider.lower()
 
     if provider == "ollama":
-        ctx_length = OLLAMA_CONTEXT_LENGTHS.get(
-            OLLAMA_SETTINGS["context_length"],
-            OLLAMA_SETTINGS["context_length"]
-        )
+        ctx_length = OLLAMA_SETTINGS["context_length"]
+        if ctx_length in CONTEXT_LENGTHS:
+            ctx_length = CONTEXT_LENGTHS[ctx_length]
         return ChatOllama(
             base_url=config.ollama_base_url,
             model=config.ollama_model,
@@ -68,7 +67,9 @@ def create_llm(config: AgentConfig) -> Any:
             model=config.gemini_model,
             google_api_key=config.gemini_api_key,
             timeout=600,
-            max_output_tokens=OLLAMA_CONTEXT_LENGTHS.get("128k"),  # High limit
+            temperature=0,
+            thinking_budget=0, # Gemini 2.5: 0 (off), -1 (dynamic), or a positive integer (token limit)
+            max_output_tokens=CONTEXT_LENGTHS["128k"],
         )
     else:
         raise ValueError(f"Unknown LLM provider: {provider}. Supported: ollama, anthropic, gemini")
