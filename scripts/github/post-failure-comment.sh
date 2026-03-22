@@ -30,25 +30,22 @@ fi
 
 # Clean PR URL (remove anchor)
 clean_pr_url="${PR_URL%%#*}"
-
-# Generate failure comment
-from_link="[@${USER:-'GitHub Actions'}](https://github.com/${USER:-github-actions})"
-repo_link="[PR Assistant](${PR_ASSISTANT_REPO_URL:-https://github.com/your-org/pr-assistant})"
-run_link="[Run Log](${RUN_URL})"
+user="${USER:-github-actions}"
+repo_url="${PR_ASSISTANT_REPO_URL:-https://github.com/your-org/pr-assistant}"
 
 failure_comment="❌ PR Review failed!
 
-${from_link}
+[@${user}](https://github.com/${user})
 
-${repo_link} • ${run_link}"
+[PR Assistant](${repo_url}) • [Run Log](${RUN_URL})"
 
 # Post comment using Python
-cd "$PROJECT_ROOT/src" || exit 1
+cd "$PROJECT_ROOT" || exit 1
 
-python3 -c "
+uv run python3 -c "
 import os
 import sys
-sys.path.insert(0, '.')
+sys.path.insert(0, 'src')
 
 from pr_assistant.agents.core.github_client import GitHubWriteClient
 
