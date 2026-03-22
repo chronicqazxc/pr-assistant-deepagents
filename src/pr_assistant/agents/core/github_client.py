@@ -23,16 +23,23 @@ class GitHubWriteClient:
             base_url: GitHub API base URL
 
         Returns:
-            Username (login) of the authenticated user
+            Username (login) of the authenticated user, or empty string if failed
         """
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/vnd.github+json",
             "X-GitHub-Api-Version": "2022-11-28",
         }
-        response = requests.get(f"{base_url.rstrip('/')}/user", headers=headers, timeout=30)
-        if response.status_code == 200:
-            return response.json().get("login", "")
+        try:
+            response = requests.get(f"{base_url.rstrip('/')}/user", headers=headers, timeout=30)
+            if response.status_code == 200:
+                data = response.json()
+                username = data.get("login", "") or data.get("name", "")
+                print(f"  DEBUG: Token prefix={token[:10]}..., API response: {data}")
+                return username
+            print(f"  WARNING: Failed to get username from token: {response.status_code} - {response.text[:200]}")
+        except Exception as e:
+            print(f"  WARNING: Exception getting username from token: {e}")
         return ""
 
     def _parse_pr_url(self, pr_url: str):
