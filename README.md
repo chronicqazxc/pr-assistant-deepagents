@@ -14,6 +14,21 @@ PR Assistant automatically reviews pull requests and responds to comments based 
 - **GitHub Native**: Integrates seamlessly with GitHub Actions and GitHub API
 - **Extensible**: Add support for any repository by registering a new agent
 
+## Pre-Fetched Data
+
+Before agents run, data is prefetched from GitHub API and stored in `pre-fetched-data/`:
+
+| File | Source | Purpose |
+|------|--------|---------|
+| `pr_metadata.json` | `GET /repos/{owner}/{repo}/pulls/{pr}` | PR metadata (title, description, author, base/head branches, status, labels) |
+| `pr_diff.txt` | `GET /repos/{owner}/{repo}/pulls/{pr}` (Accept: `application/vnd.github.diff`) | Full unified diff of all changes in the PR |
+| `issue_comments.json` | `GET /repos/{owner}/{repo}/issues/{pr}/comments` | General PR conversation comments |
+| `review_comments.json` | `GET /repos/{owner}/{repo}/pulls/{pr}/comments` | Code review inline comments (diff comments) |
+| `trigger_comment.json` | `GET /repos/{owner}/{repo}/issues/comments/{id}` or `GET /repos/{owner}/{repo}/pulls/comments/{id}` | The specific comment that triggered the bot |
+| `<repo>/` | `git clone` of the PR's source branch | Local repository copy for deeper analysis (file reading, grep, etc.) |
+
+**Source**: All data is fetched from GitHub API using `GH_TOKEN` (GitHub Actions token).
+
 ## Architecture
 
 ```
@@ -67,7 +82,7 @@ Note: `GH_TOKEN` is auto-provided by GitHub Actions (no manual secret needed).
 
 | Provider | Variables |
 |----------|-----------|
-| Ollama | `OLLAMA_BASE_URL`, `OLLAMA_MODEL` |
+| Ollama | `OLLAMA_BASE_URL`, `OLLAMA_MODEL` (tested with gpt-oss:20b local) |
 | Anthropic | `ANTHROPIC_MODEL` |
 | Gemini | `GEMINI_MODEL` |
 
@@ -199,7 +214,7 @@ GH_TOKEN=<auto-provided>
 # LLM Provider
 LLM_PROVIDER=ollama  # or anthropic, gemini
 
-# Ollama (local)
+# Ollama (local) - tested with gpt-oss:20b
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=gpt-oss:20b
 

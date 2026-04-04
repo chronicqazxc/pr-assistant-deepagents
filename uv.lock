@@ -1546,7 +1546,7 @@ wheels = [
 ]
 
 [[package]]
-name = "pr-assistant"
+name = "pr-assistant-deepagents"
 version = "0.32.0"
 source = { editable = "." }
 dependencies = [

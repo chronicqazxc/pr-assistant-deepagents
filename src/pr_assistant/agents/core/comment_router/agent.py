@@ -60,11 +60,23 @@ class CommentRouter:
         }
 
     async def analyze_comment(self, comment_text: str) -> Dict[str, any]:
-        """Analyze comment with LLM to determine routing decision."""
-        from langchain.agents.structured_output import ToolStrategy
-
+        """Analyze comment with LLM to determine routing decision.
+        
+        Note for Ollama: We use with_structured_output() instead of 
+        create_deep_agent + ToolStrategy because:
+        - ToolStrategy uses streaming internally, which breaks with Ollama
+        - The direct with_structured_output() method works correctly
+        """
         template_path = Path(__file__).parent / "route_prompt.md"
         prompt = template_path.read_text().format(comment_text=comment_text)
+
+        if self.config.llm_provider == "ollama":
+            # Use direct structured output for Ollama (see llm_factory.py for context)
+            structured_llm = self.llm.with_structured_output(RoutingDecision)
+            result = structured_llm.invoke(prompt)
+            return result.model_dump() if hasattr(result, 'model_dump') else dict(result)
+
+        from langchain.agents.structured_output import ToolStrategy
 
         agent = create_deep_agent(
             model=self.llm,
