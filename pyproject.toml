@@ -17,6 +17,8 @@ dependencies = [
     "langchain-anthropic",
     "langchain-google-genai",
     "langchain-community",
+    "langchain-openai",
+    "lmstudio>=1.0.0",
     "anthropic>=0.42.0",
     "python-dotenv>=1.0.0",
     "click>=8.1.0",

@@ -152,6 +152,10 @@ fi
 {
   echo "export GH_TOKEN=$GH_TOKEN"
   echo "export LLM_PROVIDER=$LLM_PROVIDER"
+  echo "export OLLAMA_BASE_URL=$OLLAMA_BASE_URL"
+  echo "export OLLAMA_MODEL=$OLLAMA_MODEL"
+  echo "export LM_STUDIO_BASE_URL=$LM_STUDIO_BASE_URL"
+  echo "export LM_STUDIO_MODEL=$LM_STUDIO_MODEL"
   echo "export GITHUB_REPOSITORY=$GITHUB_REPOSITORY"
   echo "export OWNER=$OWNER"
   echo "export REPO=$REPO"

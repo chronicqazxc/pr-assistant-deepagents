@@ -62,20 +62,69 @@ class CommentRouter:
     async def analyze_comment(self, comment_text: str) -> Dict[str, any]:
         """Analyze comment with LLM to determine routing decision.
         
-        Note for Ollama: We use with_structured_output() instead of 
-        create_deep_agent + ToolStrategy because:
-        - ToolStrategy uses streaming internally, which breaks with Ollama
-        - The direct with_structured_output() method works correctly
+        Note for local models (Ollama, LM Studio): We use with_structured_output() 
+        instead of create_deep_agent + ToolStrategy because ToolStrategy has
+        issues with local models (streaming, etc.). For remote providers, we
+        use the full ToolStrategy approach.
         """
         template_path = Path(__file__).parent / "route_prompt.md"
-        prompt = template_path.read_text().format(comment_text=comment_text)
+        template = template_path.read_text()
+        template = template.replace("{{", "{").replace("}}", "}")
+        prompt = template.replace("{comment_text}", comment_text)
 
-        if self.config.llm_provider == "ollama":
-            # Use direct structured output for Ollama (see llm_factory.py for context)
-            structured_llm = self.llm.with_structured_output(RoutingDecision)
-            result = structured_llm.invoke(prompt)
-            return result.model_dump() if hasattr(result, 'model_dump') else dict(result)
+        if self.config.llm_provider in ["ollama", "lm_studio"]:
+            # For local models, use with_structured_output (more reliable)
+            try:
+                structured_llm = self.llm.with_structured_output(RoutingDecision)
+                result = structured_llm.invoke(prompt)
+                return result.model_dump() if hasattr(result, 'model_dump') else dict(result)
+            except ValueError as e:
+                # Fallback for models that don't support structured output
+                print(f"[Warning] Structured output failed: {e}")
+                print("[Fallback] Using plain text response and JSON parsing...")
+                
+                plain_prompt = prompt + "\n\nRespond ONLY with a valid JSON object, no other text."
+                plain_result = self.llm.invoke(plain_prompt)
+                
+                content = plain_result.content if hasattr(plain_result, 'content') else str(plain_result)
+                
+                import json
+                import re
+                
+                json_match = re.search(r'```json\s*(.*?)\s*```', content, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(1)
+                else:
+                    json_match = re.search(r'\{.*\}', content, re.DOTALL)
+                    if json_match:
+                        json_str = json_match.group(0)
+                    else:
+                        raise ValueError(f"Could not parse JSON from response: {content[:200]}")
+                
+                json_str = json_str.strip()
+                
+                try:
+                    parsed = json.loads(json_str)
+                except json.JSONDecodeError as je:
+                    print(f"[Warning] JSON parse failed: {je}")
+                    print(f"[Attempting fix] Trying to fix malformed JSON...")
+                    
+                    fixed = json_str
+                    fixed = re.sub(r'(\w+)(:\s*)', r'"\1"\2', fixed)
+                    fixed = re.sub(r'"(\w+)"\s*:\s*"([^"]*)"', r'"\1": "\2"', fixed)
+                    fixed = fixed.replace('greeting0', '"greeting"')
+                    fixed = fixed.replace('{{', '{').replace('}}', '}')
+                    
+                    try:
+                        parsed = json.loads(fixed)
+                    except json.JSONDecodeError:
+                        raise ValueError(f"Failed to parse JSON: {je}, content: {json_str[:200]}")
+                
+                if 'decision' not in parsed or 'reason' not in parsed:
+                    raise ValueError(f"Missing required fields: {parsed}")
+                return parsed
 
+        # For remote providers (anthropic, gemini), use ToolStrategy
         from langchain.agents.structured_output import ToolStrategy
 
         agent = create_deep_agent(
