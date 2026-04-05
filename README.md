@@ -75,7 +75,7 @@ Note: `GH_TOKEN` is auto-provided by GitHub Actions (no manual secret needed).
 
 **Variables:**
 - `PR_ASSISTANT_REPO` - This repository URL (e.g., `your-username/pr-assistant-deepagents`)
-- `LLM_PROVIDER` - `ollama`, `anthropic`, or `gemini`
+- `LLM_PROVIDER` - `ollama`, `lm_studio`, `anthropic`, or `gemini`
 - `TRIGGER_KEYWORD` - Bot mention keyword to trigger (e.g., `DangerCI001`)
 
 **LLM Provider Settings (Variables):**
@@ -83,6 +83,7 @@ Note: `GH_TOKEN` is auto-provided by GitHub Actions (no manual secret needed).
 | Provider | Variables |
 |----------|-----------|
 | Ollama | `OLLAMA_BASE_URL`, `OLLAMA_MODEL` (tested with gpt-oss:20b local) |
+| LM Studio | `LM_STUDIO_BASE_URL`, `LM_STUDIO_MODEL`, `LM_STUDIO_CONTEXT_LENGTH` (tested with gpt-oss-20b, glm-4.7-flash) |
 | Anthropic | `ANTHROPIC_MODEL` |
 | Gemini | `GEMINI_MODEL` |
 
@@ -212,11 +213,18 @@ Environment variables (`.env`). In GitHub Actions, these are set via secrets/var
 GH_TOKEN=<auto-provided>
 
 # LLM Provider
-LLM_PROVIDER=ollama  # or anthropic, gemini
+LLM_PROVIDER=ollama  # or lm_studio, anthropic, gemini
 
 # Ollama (local) - tested with gpt-oss:20b
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=gpt-oss:20b
+OLLAMA_CONTEXT_LENGTH=32768
+OLLAMA_NUM_PREDICT=8192
+
+# LM Studio (local) - tested with gpt-oss-20b, glm-4.7-flash
+# IMPORTANT: Context length must be set at load time (via LM Studio UI or CLI), not here
+LM_STUDIO_BASE_URL=http://localhost:1234/v1
+LM_STUDIO_MODEL=gpt-oss-20b
 
 # Anthropic
 ANTHROPIC_API_KEY=<your-api-key>
